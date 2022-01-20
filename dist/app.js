@@ -1,77 +1,61 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Department = (function () {
-    function Department(id, name) {
-        this.id = id;
-        this.name = name;
-        this.employees = [];
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+const registerdValidators = {};
+function Required(target, propName) {
+    registerdValidators[target.constructor.name] = Object.assign(Object.assign({}, registerdValidators[target.constructor.name]), { [propName]: ["required"] });
+    console.log(registerdValidators);
+}
+function PositiveNumber(target, propName) {
+    registerdValidators[target.constructor.name] = Object.assign(Object.assign({}, registerdValidators[target.constructor.name]), { [propName]: ["positive"] });
+    console.log(registerdValidators);
+}
+function validate(obj) {
+    const objValidatorConfig = registerdValidators[obj.constructor.name];
+    if (!objValidatorConfig) {
+        true;
     }
-    Department.prototype.describe = function () {
-        console.log("Department (".concat(this.id, "): ").concat(this.name));
-    };
-    Department.prototype.addEmployee = function (employee) {
-        this.employees.push(employee);
-    };
-    Department.prototype.printEmployeeInformation = function () {
-        console.log(this.employees.length);
-        console.log(this.employees);
-    };
-    return Department;
-}());
-var ITDepartment = (function (_super) {
-    __extends(ITDepartment, _super);
-    function ITDepartment(id, admins) {
-        var _this = _super.call(this, id, "IT") || this;
-        _this.admins = admins;
-        return _this;
-    }
-    return ITDepartment;
-}(Department));
-var AccountingDepartment = (function (_super) {
-    __extends(AccountingDepartment, _super);
-    function AccountingDepartment(id, reports) {
-        var _this = _super.call(this, id, "Accounting") || this;
-        _this.reports = reports;
-        return _this;
-    }
-    AccountingDepartment.prototype.addEmployee = function (employee) {
-        if (employee === "Max") {
-            return;
+    let isValid = true;
+    for (const prop in objValidatorConfig) {
+        for (const validator of objValidatorConfig[prop]) {
+            switch (validator) {
+                case "required":
+                    isValid = isValid && !!obj[prop];
+                case "positive":
+                    isValid = isValid && obj[prop] > 0;
+            }
         }
-        this.employees.push(employee);
-    };
-    AccountingDepartment.prototype.addReport = function (text) {
-        this.reports.push(text);
-    };
-    AccountingDepartment.prototype.printReports = function () {
-        console.log(this.reports);
-    };
-    return AccountingDepartment;
-}(Department));
-var it = new ITDepartment("34233", ["Max"]);
-it.describe();
-it.addEmployee("Luciano");
-it.addEmployee("Agutin");
-it.printEmployeeInformation();
-console.log(it);
-var accounting = new AccountingDepartment("123", []);
-accounting.addReport("some report");
-accounting.addEmployee("Max");
-accounting.addEmployee("Manu");
-accounting.printReports();
-accounting.printEmployeeInformation();
+    }
+    return isValid;
+}
+class Course {
+    constructor(t, p) {
+        this.title = t;
+        this.price = p;
+    }
+}
+__decorate([
+    Required
+], Course.prototype, "title", void 0);
+__decorate([
+    PositiveNumber
+], Course.prototype, "price", void 0);
+const courseForm = document.querySelector("form");
+courseForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const titleEl = document.getElementById("title");
+    const priceEl = document.getElementById("price");
+    const title = titleEl.value;
+    const price = +priceEl.value;
+    const createdCourse = new Course(title, price);
+    if (!validate(createdCourse)) {
+        alert("Invalid input");
+        return;
+    }
+    console.log(createdCourse);
+});
 //# sourceMappingURL=app.js.map
